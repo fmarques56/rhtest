@@ -1,5 +1,5 @@
+import type { Request, Response, Router } from "express";
 import router from "express-promise-router";
-import type { Router, Request, Response } from "express";
 import { Counter } from "prom-client";
 
 import { EmployeeService } from "./employee.service";
@@ -74,20 +74,22 @@ class EmployeeController {
 				res.status(201).send("Le salarié a bien été ajouté");
 			} catch (error) {
 				console.log((error as Error).message);
+				let response = 400;
+				if ((error as Error).message === 'Le matricule existe déjà') response = 409;
 				this.#searchCounter.inc({
 					type: "POST",
 					route: "/api/ajouter",
-					response: 409,
+					response,
 					ip: req.socket.remoteAddress,
 				});
-				return res.status(409).send((error as Error).message);
+				return res.status(response).send((error as Error).message);
 			}
 		});
 
-		this.#router.post("/api/modifier", async (req: Request, res: Response) => {
+		this.#router.post("/api/modifier/:id", async (req: Request, res: Response) => {
 			try {
 				await this.#employeeService.update(
-					req.query.id as string,
+					req.params.id as string,
 					req.query.name as string,
 					req.query.lastname as string,
 					req.query.salary as string,
@@ -104,13 +106,16 @@ class EmployeeController {
 				res.status(200).send("Le salarié a bien été modifié");
 			} catch (error) {
 				console.log((error as Error).message);
+				let response = 400;
+				if ((error as Error).message === 'Le matricule existe déjà') response = 409;
+				if ((error as Error).message === `Le matricule n'a pas été trouvé`) response = 404;
 				this.#searchCounter.inc({
 					type: "POST",
 					route: "/api/modifier",
-					response: 409,
+					response,
 					ip: req.socket.remoteAddress,
 				});
-				return res.status(409).send((error as Error).message);
+				return res.status(response).send((error as Error).message);
 			}
 		});
 
@@ -149,11 +154,11 @@ class EmployeeController {
 			},
 		);
 
-		this.#router.delete(
+		this.#router.post(
 			"/api/datatest",
 			async (req: Request, res: Response) => {
 				await this.#employeeService.reset();
-				res.send("Le fichier de salarié a été reinitialisé");
+				res.status(201).send("Le fichier de salarié a été reinitialisé");
 			},
 		);
 

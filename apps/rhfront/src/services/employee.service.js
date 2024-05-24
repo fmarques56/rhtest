@@ -25,7 +25,7 @@ async function search(name) {
 
 async function update(employee) {
 	const { data } = await axios.post(
-		`${BASE_URL}/api/modifier?id=${employee.id}&name=${employee.name}&lastname=${employee.lastname}&salary=${employee.salary}&level=${employee.level}`,
+		`${BASE_URL}/api/modifier/${employee.id}?name=${employee.name}&lastname=${employee.lastname}&salary=${employee.salary}&level=${employee.level}`,
 	);
 	return data;
 }
@@ -53,12 +53,8 @@ const emptyEmployee = {
 };
 
 export {
-	create,
-	search,
-	update,
-	fetch,
-	deleteAll,
-	deleteOne,
-	resetData,
-	emptyEmployee,
+	create, deleteAll,
+	deleteOne, emptyEmployee, fetch, resetData, search,
+	update
 };
+

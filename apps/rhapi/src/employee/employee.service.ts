@@ -42,6 +42,9 @@ class EmployeeService {
 			"Le niveau doit être > -10 et < 10",
 		);
 
+		// rules required
+		assert(name.length > 0, "Le nom est obligatoire");
+		assert(lastname.length > 0, "Le prénom est obligatoire");
 		assert(id.length > 0, "Le matricule est obligatoire");
 
 		const employees = await this.list();

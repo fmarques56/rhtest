@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { EmployeeService } from "./employee.service";
 import { EmployeeRepository } from "./employee.repository";
+import { EmployeeService } from "./employee.service";
 describe("Employee unit tests", () => {
 	let employeeService: EmployeeService;
 
@@ -28,6 +28,18 @@ describe("Employee unit tests", () => {
 		expect(() =>
 			employeeService.add("test", "doe", "john", "10", "11"),
 		).rejects.toThrow("Le niveau doit être > -10 et < 10");
+	});
+
+	it("should have an error while adding employee without name", async () => {
+		expect(() =>
+			employeeService.add("test", "", "john", "10", "4"),
+		).rejects.toThrow("Le nom est obligatoire");
+	});
+
+	it("should have an error while adding employee without lastname", async () => {
+		expect(() =>
+			employeeService.add("test", "doe", "", "10", "4"),
+		).rejects.toThrow("Le prénom est obligatoire");
 	});
 
 	it("should have an error while adding employee without id", async () => {
