@@ -35,12 +35,20 @@ async function deleteOne(employee) {
 	return data;
 }
 
-async function deleteAll() {
-	await axios.delete(`${BASE_URL}/api/deleteall`);
+async function deleteAll(apiToken) {
+	await axios.delete(`${BASE_URL}/api/deleteall`, {
+		headers: {
+			Authorization: `${apiToken}`,
+		},
+	});
 }
 
-async function resetData() {
-	const { data } = await axios.delete(`${BASE_URL}/api/datatest`);
+async function resetData(apiToken) {
+	const { data } = await axios.post(`${BASE_URL}/api/datatest`, null, {
+		headers: {
+			Authorization: `${apiToken}`,
+		},
+	});
 	return data;
 }
 

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@picocss/pico": "^2.0.6",
+    "@vueuse/core": "^13.0.0",
     "axios": "^1.6.8",
     "vue": "^3.4.26"
   },
