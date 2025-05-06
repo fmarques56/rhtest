@@ -64,11 +64,8 @@ Exemples de variables, ici la base URL
 
 Exemple d'assertion :
 
-Assert Content
-![Assert](img/07.png)
-
-Assert Status
-![Assert](img/08.png)
+Assert Content et Assert Status
+![Cas de test](img/07.png)
 
 ## Objectifs
 

@@ -1,9 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_GITPOD_WORKSPACE_URL
-	? `https://8080-${
-			import.meta.env.VITE_GITPOD_WORKSPACE_URL.split("https://")[1]
-	  }`
+const BASE_URL = import.meta.env.VITE_CODESPACES_WORKSPACE_URL
+	? import.meta.env.VITE_CODESPACES_WORKSPACE_URL
 	: "http://localhost:8080";
 
 async function create(employee) {

@@ -1,0 +1,25 @@
+{
+  "name": "RHTEST",
+  "dockerComposeFile": "../apps/docker-compose-rhtest.yml",
+  "service": "rhfront",
+  "workspaceFolder": "/workspaces/rhtest",
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [8080, 8086, 9090, 3000],
+  "portsAttributes": {
+    "8080": {
+      "label": "API Server",
+      "onAutoForward": "openPreview",
+      "visibility": "public"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "vitest.explorer",
+        "biomejs.biome",
+        "Vue.volar"
+      ]
+    }
+  }
+}

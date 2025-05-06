@@ -107,24 +107,41 @@ Agrémentez votre tableau de bord en ajoutant de nouveaux composants pour :
 4. Visualiser le taux de disponibilité de notre API sur 1 heure (information très utilisée comme SLI !)
     * Là aussi, la métrique `up` est la plus adaptée.
     * Une opération permet de calculer la moyenne des valeurs sur une période donnée : `Range functions > Avg over time`
-    * A l'aide du type de graphe `Gauge`, essayez d'obtenir le résultat suivant :
+    * A l'aide du type de graphe `Gauge`, essayez d'obtenir le résultat suivant en vous aidant des paramètres `min`, `max` et `thresholds` :
         <br><img src="img/dispo_vert.png" alt="drawing" width="30%"/>
     * Si on coupe le conteneur de l'api, constatez le taux diminuer :
         <br><img src="img/dispo_rouge.png" alt="drawing" width="30%"/>
 5. Visualiser le taux d'erreurs 4xx par minute (pas seulement 400 ou 409)
     * Tip 1 : vous pouvez filtrer vos labels en utilisant des regex avec le matching `=~`
     * Tip 2 : vous pouvez opérer des calculs entre deux séries temporelles avec l'opération `Binary operations > Binary operation with query`
-    * Une fois votre composant créé, spammez la route `/api/rechercher` de rhapi dans votre naviguateur pour faire monter le taux d'erreurs 4xx
+    * Une fois votre composant créé, spammez la route `/api/rechercher` de rhapi dans votre navigateur pour faire monter le taux d'erreurs 4xx
 
 Une fois votre dashboard achevé, n'hésitez pas à couper le conteneur de noise et naviguer sur rhfront pour générer vos propres appels à l'API, et voir le comportement de votre dashboard.
 
-Vous pouvez également réfléchir à d'autres composants qui vous semblent pertinents, ou simplement explorer les différents types de graphes pour améliorer ceux que vous venez de créer ! 😉
+## Rendu
+Téléchargez votre dashboard au format JSON, et l'envoyer par mail à mathis.racinne-divet@univ-ubs.fr.
+Pour cela :
+* **Enregistrez votre dashboard** ;
+
+* Cliquez sur le bouton de partage :
+    <br><img src="img/export_1.png" alt="drawing" width="30%"/>
+
+* Dans l'onglet **Export**, cliquer sur **Save to file** :
+    <br><img src="img/export_2.png" alt="drawing" width="30%"/>
+
+## Pour aller plus loin
+* Les dashboards sont un bon outil pour visualiser l'état de santé de votre application, mais il peut être utile - et rapidement nécessaire - d'être alerté automatiquement de la détection d'une anomalie, plutôt que surveiller en permanence plusieurs dashboards. Grafana propose une fonctionnalité de gestion des alertes, pour mettre en place cette détection automatique en se basant sur les métriques.
+
+* Essayez de créer une alerte simple `rhapi_status`, qui se déclenche quand l'api est down (inspirez-vous du composant UP/DOWN de la question 3).
+  * Pour cela, rendez-vous dans le menu `Alert rules`, et cliquez sur `+ New alert rule` à droite :
+    <br><img src="img/alert_rules.png" alt="drawing" width="15%"/>
+* S'il vous reste du temps, vous pouvez implémenter d'autres alertes en vous inspirant des composants de votre dashboard.
 
 
 ## Ce qu'il faut retenir
 * Tester et vérifier le bon fonctionnement d'une application est une tâche qui s'opère tout au long du cycle de vie de cette dernière, **du début de sa conception jusqu'à la fin de son utilisation**.
 * **Le coût d'une anomalie en production est bien plus grand qu'une anomalie détectée avant la mise en production**.
 * De plus, **une anomalie en production a un impact direct sur l'image de votre produit**. Il est donc impératif de **les détecter le plus rapidement possible**.
-* C'est dans ce but qu'on utilise des moyens de supervision, la collecte de métriques en faisant partie. **L'utilisation de métriques permet de détecter en temps réel un comportement anormal, et avoir une idication sur son origine**. Par exemple, un grand nombre d'erreurs 500 sur une route précise de notre API.
+* C'est dans ce but qu'on utilise des moyens de supervision, la collecte de métriques en faisant partie. **L'utilisation de métriques permet de détecter en temps réel un comportement anormal, et avoir une indication sur son origine**. Par exemple, un grand nombre d'erreurs 500 sur une route précise de notre API.
 * Les métriques nous indiquent également si certaines spécifications de notre référentiel de test sont toujours respectées en production. **Ces spécifications constituent souvent nos SLI**, comme par exemple le taux de disponibilité de l'API.
 * Enfin, dans un contexte de cybersécurité, avoir une stack de supervision peut **contribuer à détecter des comportements malveillants**. Par exemple, un soudain pic d'appels par un ensemble d'adresses IP peut suggérer une attaque par déni de service.
