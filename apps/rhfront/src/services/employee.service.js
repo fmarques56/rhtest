@@ -6,24 +6,32 @@ const BASE_URL = import.meta.env.VITE_CODESPACES_WORKSPACE_URL
 
 async function create(employee) {
 	const { data } = await axios.post(
-		`${BASE_URL}/api/ajouter?id=${employee.id}&name=${employee.name}&lastname=${employee.lastname}&salary=${employee.salary}&level=${employee.level}`,
+		`${BASE_URL}/api/ajouter`,
+		employee
 	);
 	return data;
 }
 
 async function fetch() {
-	const { data } = await axios.get(`${BASE_URL}/api/rechercher?mode=all`);
+	const { data } = await axios.get(`${BASE_URL}/api/employees`);
 	return data;
 }
 
-async function search(name) {
-	const { data } = await axios.get(`${BASE_URL}/api/rechercher?name=${name}`);
+
+async function searchDetailed(criteria) {
+	const { data } = await axios.post(`${BASE_URL}/api/rechercher`, { mode: "detailed", search: criteria });
 	return [...data];
 }
 
 async function update(employee) {
-	const { data } = await axios.post(
-		`${BASE_URL}/api/modifier/${employee.id}?name=${employee.name}&lastname=${employee.lastname}&salary=${employee.salary}&level=${employee.level}`,
+	const { data } = await axios.put(
+		`${BASE_URL}/api/modifier/${employee.id}`,
+		{
+			name: employee.name,
+			lastname: employee.lastname,
+			salary: employee.salary,
+			level: employee.level
+		}
 	);
 	return data;
 }
@@ -58,9 +66,13 @@ const emptyEmployee = {
 	level: "",
 };
 
+	async function searchFullText(text) {
+		const { data } = await axios.post(`${BASE_URL}/api/rechercher`, { mode: "fulltext", search: text });
+		return [...data];
+	}
+
 export {
 	create, deleteAll,
-	deleteOne, emptyEmployee, fetch, resetData, search,
-	update
+	deleteOne, emptyEmployee, fetch, resetData, searchDetailed, searchFullText, update
 };
 

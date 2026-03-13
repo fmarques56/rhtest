@@ -12,11 +12,16 @@ Aujourd'hui, nous utiliserons l'outil Selenium Ide qui permet de réaliser d'enr
 
 1.  Démarrer l'application RhTest
 2.  Disposer du référentiel d'exigences
-3.  Installer le plugin Chrome ou Firefox Selenium IDE depuis la page https://www.selenium.dev/selenium-ide/
+3.  Installer le plugin Firefox Selenium IDE depuis la page https://www.selenium.dev/selenium-ide/
 
 Une fois Selenium Ide installé, l'outil est disponible dans les barres d'outils de Chrome ou Firefox sur l'icone
 
 ![Lancer Selenium Ide](img/selenium-ide128.png)
+
+Lancer l'application :
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=master&repo=fmarques56/rhtest)
+
 
 ## Présentation de Selenium Ide
 
@@ -117,7 +122,17 @@ Dans la suite de test "Rechercher", il va falloir
   Ajouter un employé avec des critères valides puis rechercher sur d'autres critères
   Et contrôler avec au moins 1 assertion
 
-_ex 04 :_ Supprimer  
+_ex 04 :_ Recherche détaillée    
+Dans la suite de test "Recherche détaillée", il va falloir
+
+- _Cas de test 1 :_ Cas nominal (fonctionnel)  
+  Ajouter un employé puis le rechercher en mode détaillé
+  Et contrôler avec au moins 1 assertion
+- _Cas de test 2 :_ Cas en erreur (vide)  
+  Ajouter un employé avec des critères valides puis rechercher en mode détaillé sur d'autres critères
+  Et contrôler avec au moins 1 assertion
+
+_ex 05 :_ Supprimer  
 Dans la suite de test "Supprimer", il va falloir
 
 - _Cas de test 1 :_ Cas nominal (fonctionnel)  
@@ -125,6 +140,22 @@ Dans la suite de test "Supprimer", il va falloir
   Et contrôler avec au moins 1 assertion
 - _Cas de test 2 :_ Cas en erreur (vide)  
   Supprimer un employé inexistant
+  Et contrôler avec au moins 1 assertion
+
+_ex 06 :_ Administration  
+Dans la suite de test "Administration", il va falloir
+
+- _Cas de test 1 :_ Cas nominal (fonctionnel)  
+  Supprimer les données  
+  Et contrôler avec au moins 1 assertion
+- _Cas de test 2 :_ Cas nominal (fonctionnel)  
+  Restaurer les données
+  Et contrôler avec au moins 1 assertion
+- _Cas de test 3 :_ Cas en erreur (vide)  
+  Supprimer les données sans token
+  Et contrôler avec au moins 1 assertion
+- _Cas de test 4 :_ Cas en erreur (faux)  
+  Supprimer les données avec mauvais token
   Et contrôler avec au moins 1 assertion
 
 Une fois que l'ensemble des exigences sont enregistrées, rejouer la séquence complète.

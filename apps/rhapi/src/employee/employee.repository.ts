@@ -17,6 +17,10 @@ class EmployeeRepository {
 		return this.#employees.filter((salarie) => salarie.name === name);
 	}
 
+	getById(id: string) {
+		return this.#employees.find((salarie) => salarie.id === id);
+	}
+
 	add(employee: Employee) {
 		this.#employees.push(employee);
 	}

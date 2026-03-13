@@ -16,31 +16,77 @@
      }
    ],
    "paths":{
-      "/api/rechercher":{
+      "/api/employees":{
          "get":{
-            "summary":"Rechercher des employés",
-            "description":"Rechercher des employés en fonction de différents critères",
+            "summary":"Récupérer tous les employés",
+            "description":"Retourne la liste complète des employés.",
             "tags": ["API - Métier"],
-            "parameters":[
-               {
-                  "name":"mode",
-                  "in":"query",
-                  "description":"Le mode de recherche (tous les employés ou un employé spécifique)",
-                  "required":true,
-                  "schema":{
-                     "type":"string"
-                  }
-               },
-               {
-                  "name":"name",
-                  "in":"query",
-                  "description":"Le nom de l'employé à rechercher",
-                  "required":false,
-                  "schema":{
-                     "type":"string"
+            "responses":{
+               "200":{
+                  "description":"Liste des employés",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "$ref":"#/components/schemas/Employee"
+                           }
+                        }
+                     }
                   }
                }
-            ],
+            }
+         }
+      },
+      "/api/rechercher":{
+         "post":{
+            "summary":"Recherche avancée (fulltext ou multi-critères)",
+            "description":"Recherche sur tous les champs (fulltext) ou par critères spécifiques.",
+            "tags": ["API - Métier"],
+            "requestBody":{
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "properties":{
+                           "mode":{
+                              "type":"string",
+                              "enum": ["fulltext", "detailed"],
+                              "description":"Mode de recherche obligatoire: 'fulltext' pour recherche globale, 'detailed' pour multi-critères"
+                           },
+                           "search":{
+                              "oneOf": [
+                                 { "type": "string", "description": "Texte pour recherche fulltext" },
+                                 { "type": "object", "properties": {
+                                    "id": { "type": "string" },
+                                    "name": { "type": "string" },
+                                    "lastname": { "type": "string" },
+                                    "salary": { "type": "string" },
+                                    "level": { "type": "string" }
+                                 }, "description": "Objets pour recherche multi-critères" }
+                              ]
+                           }
+                        },
+                        "required":["mode","search"]
+                     },
+                     "examples":{
+                        "fulltext":{
+                           "summary":"Recherche globale",
+                           "value":{ "mode":"fulltext", "search":"rené" }
+                        },
+                        "detailed":{
+                           "summary":"Recherche multi-critères",
+                           "value":{ "mode":"detailed", "search":{ "name":"Durand", "level":"1" } }
+                        },
+                        "erreur":{
+                           "summary":"Erreur mode absent ou incorrect",
+                           "value":{ "search":"Durand" }
+                        }
+                     }
+                  }
+               }
+            },
             "responses":{
                "200":{
                   "description":"Liste des employés trouvés",
@@ -61,58 +107,54 @@
             }
          }
       },
+            "/api/employee/{id}":{
+               "get":{
+                  "summary":"Récupérer un employé par id (matricule)",
+                  "description":"Récupérer un employé par son matricule unique.",
+                  "tags": ["API - Métier"],
+                  "parameters":[
+                     {
+                        "name":"id",
+                        "in":"path",
+                        "description":"Matricule de l'employé",
+                        "required":true,
+                        "schema":{
+                           "type":"string"
+                        }
+                     }
+                  ],
+                  "responses":{
+                     "200":{
+                        "description":"Employé trouvé",
+                        "content":{
+                           "application/json":{
+                              "schema":{
+                                 "$ref":"#/components/schemas/Employee"
+                              }
+                           }
+                        }
+                     },
+                     "404":{
+                        "description":"Employé non trouvé"
+                     }
+                  }
+               }
+            },
       "/api/ajouter":{
          "post":{
             "summary":"Ajouter un employé",
             "description":"Ajouter un employé à la liste des employés",
             "tags": ["API - Métier"],
-            "parameters":[
-               {
-                  "name":"id",
-                  "in":"query",
-                  "description":"L'ID de l'employé à ajouter",
-                  "required":true,
-                  "schema":{
-                     "type":"string"
-                  }
-               },
-               {
-                  "name":"name",
-                  "in":"query",
-                  "description":"Le nom de l'employé à ajouter",
-                  "required":true,
-                  "schema":{
-                     "type":"string"
-                  }
-               },
-               {
-                  "name":"lastname",
-                  "in":"query",
-                  "description":"Le nom de famille de l'employé à ajouter",
-                  "required":true,
-                  "schema":{
-                     "type":"string"
-                  }
-               },
-               {
-                  "name":"salary",
-                  "in":"query",
-                  "description":"Le salaire de l'employé à ajouter",
-                  "required":true,
-                  "schema":{
-                     "type":"string"
-                  }
-               },
-               {
-                  "name":"level",
-                  "in":"query",
-                  "description":"Le niveau de l'employé à ajouter",
-                  "required":true,
-                  "schema":{
-                     "type":"string"
+            "requestBody":{
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "$ref":"#/components/schemas/Employee"
+                     }
                   }
                }
-            ],
+            },
             "responses":{
                "201":{
                   "description":"L'employé a été ajouté avec succès"
@@ -127,7 +169,7 @@
          }
       },
       "/api/modifier/{id}":{
-         "post":{
+         "put":{
             "summary":"Modifier un employé",
             "description":"Modifier les informations d'un employé existant",
             "tags": ["API - Métier"],
@@ -140,44 +182,25 @@
                   "schema":{
                      "type":"string"
                   }
-               },
-               {
-                  "name":"name",
-                  "in":"query",
-                  "description":"Le nouveau nom de l'employé",
-                  "required":true,
-                  "schema":{
-                     "type":"string"
-                  }
-               },
-               {
-                  "name":"lastname",
-                  "in":"query",
-                  "description":"Le nouveau nom de famille de l'employé",
-                  "required":true,
-                  "schema":{
-                     "type":"string"
-                  }
-               },
-               {
-                  "name":"salary",
-                  "in":"query",
-                  "description":"Le nouveau salaire de l'employé",
-                  "required":true,
-                  "schema":{
-                     "type":"string"
-                  }
-               },
-               {
-                  "name":"level",
-                  "in":"query",
-                  "description":"Le nouveau niveau de l'employé",
-                  "required":true,
-                  "schema":{
-                     "type":"string"
-                  }
                }
             ],
+            "requestBody":{
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "properties":{
+                           "name": { "type": "string" },
+                           "lastname": { "type": "string" },
+                           "salary": { "type": "string" },
+                           "level": { "type": "string" }
+                        },
+                        "required": ["name", "lastname", "salary", "level"]
+                     }
+                  }
+               }
+            },
             "responses":{
                "200":{
                   "description":"L'employé a été modifié avec succès"
@@ -280,6 +303,48 @@
                 },
                 "403":{
                    "description":"Accès interdit, token invalide"
+                }
+             }
+          }
+       },
+       "/metrics":{
+          "get":{
+             "summary":"Admin - Exporter les métriques Prometheus",
+             "description":"Expose les métriques Prometheus pour la supervision. Peut être activé/désactivé dynamiquement.",
+             "tags": ["API - Admin"],
+             "responses":{
+                "200":{
+                   "description":"Métriques Prometheus exportées (format texte)"
+                },
+                "403":{
+                   "description":"Endpoint désactivé"
+                }
+             }
+          }
+       },
+       "/metric":{
+          "get":{
+             "summary":"Admin - Activer/Désactiver l'exposition des métriques",
+             "description":"Active ou désactive dynamiquement l'exposition de la route /metrics via le paramètre enable=true|false.",
+             "tags": ["API - Admin"],
+             "parameters": [
+                {
+                  "name": "enable",
+                  "in": "query",
+                  "description": "true pour activer, false pour désactiver l'exposition de /metrics",
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "enum": ["true", "false"]
+                  }
+                }
+             ],
+             "responses":{
+                "200":{
+                   "description":"État mis à jour (metricsEnabled: true/false)"
+                },
+                "400":{
+                   "description":"Paramètre 'enable' requis ou invalide"
                 }
              }
           }

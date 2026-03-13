@@ -2,6 +2,38 @@ import assert from "node:assert";
 import { EmployeeRepository } from "./employee.repository";
 
 class EmployeeService {
+	async searchFlexible(body: { mode: "fulltext" | "detailed", search: string | Record<string, string> }) {
+		const employees = await this.list();
+		if (!body.mode || !["fulltext", "detailed"].includes(body.mode)) {
+			throw new Error("Le mode de recherche doit être 'fulltext' ou 'detailed'.");
+		}
+		if (body.mode === "fulltext" && typeof body.search === "string") {
+			const lowerSearch = body.search.toLowerCase();
+			return employees.filter(emp => {
+				return Object.values(emp).some(val =>
+					typeof val === "string" && val.toLowerCase().includes(lowerSearch)
+				);
+			});
+		}
+		if (body.mode === "detailed" && typeof body.search === "object" && body.search !== null) {
+			return employees.filter(emp => {
+				const e = emp as Record<string, any>;
+				return Object.entries(body.search).every(([key, value]) => {
+					if (!value || !e[key]) return true;
+					// Insensible à la casse pour les strings
+					if (["id", "name", "lastname", "level"].includes(key)) {
+						return typeof e[key] === "string" && e[key].toLowerCase().includes(value.toLowerCase());
+					}
+					// Exact pour salary
+					if (key === "salary") {
+						return e[key] === value;
+					}
+					return true;
+				});
+			});
+		}
+		throw new Error("Le mode de recherche et le type de données ne correspondent pas.");
+	}
 	#employeeRepository: EmployeeRepository;
 
 	constructor(employeeRepository: EmployeeRepository) {
@@ -15,11 +47,17 @@ class EmployeeService {
 		});
 	}
 
-	async getByName(name: string) {
-		const found = await this.#employeeRepository.getByName(name);
-		return found.sort(function (b, a) {
-			return a.time - b.time;
-		});
+
+	async getById(id: string) {
+		if (!id || !id.length) {
+			throw new Error("Le matricule est obligatoire");
+		}
+		const employees = await this.list();
+		const found = employees.find((salarie) => salarie.id === id);
+		if (!found) {
+			throw new Error(`L'employé ${id} n'a pas été trouvé`);
+		}
+		return found;
 	}
 
 	async #validateEmployeePayload(
@@ -113,10 +151,10 @@ class EmployeeService {
 	}
 
 	async delete(id: string) {
-		assert(id, "Le salarié n'a pas été trouvé");
+		assert(id, "L'employé n'a pas été trouvé");
 		const employees = await this.list();
 		const found = employees.findIndex((salarie) => salarie.id === id);
-		assert(found !== -1, "Le salarié n'a pas été trouvé");
+		assert(found !== -1, "L'employé n'a pas été trouvé");
 		this.#employeeRepository.delete(found);
 	}
 

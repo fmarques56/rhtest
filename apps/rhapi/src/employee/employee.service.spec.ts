@@ -2,6 +2,26 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { EmployeeRepository } from "./employee.repository";
 import { EmployeeService } from "./employee.service";
 describe("Employee unit tests", () => {
+		it("should find employee by detailed search (id)", async () => {
+			const result = await employeeService.searchFlexible({ mode: "detailed", search: { id: "SAL1" } });
+			expect(result).toHaveLength(1);
+			expect(result).toEqual([
+				expect.objectContaining({ id: "SAL1" })
+			]);
+		});
+
+		it("should find employee by detailed search (name, lastname)", async () => {
+			const result = await employeeService.searchFlexible({ mode: "detailed", search: { name: "DURAND", lastname: "Pierre" } });
+			expect(result).toHaveLength(1);
+			expect(result).toEqual([
+				expect.objectContaining({ name: "DURAND", lastname: "Pierre" })
+			]);
+		});
+
+		it("should return empty array for non-matching detailed search", async () => {
+			const result = await employeeService.searchFlexible({ mode: "detailed", search: { id: "NOTEXIST" } });
+			expect(result).toEqual([]);
+		});
 	let employeeService: EmployeeService;
 
 	beforeAll(() => {
@@ -10,13 +30,9 @@ describe("Employee unit tests", () => {
 
 	it("should list employees", async () => {
 		const employees = await employeeService.list();
-		expect(employees).toHaveLength(2);
+		expect(employees).toHaveLength(3);
 	});
 
-	it("should get employee by name", async () => {
-		const employee = await employeeService.getByName("DUPOND");
-		expect(employee).toHaveLength(1);
-	});
 
 	it("should have an error while adding employee with negative salary", async () => {
 		expect(() =>
@@ -56,16 +72,15 @@ describe("Employee unit tests", () => {
 
 	it("should create employee", async () => {
 		await employeeService.add("DOEJ", "doe", "john", "10", "4");
-		const employee = await employeeService.getByName("doe");
-		expect(employee).toEqual([
-			expect.objectContaining({
-				id: "DOEJ",
-				name: "doe",
-				lastname: "john",
-				salary: "10",
-				level: "4",
-			}),
-		]);
+		const employee = await employeeService.getById("DOEJ");
+		expect(employee).toEqual({
+			id: "DOEJ",
+			name: "doe",
+			lastname: "john",
+			salary: "10",
+			level: "4",
+			time: expect.any(Number),
+		});
 	});
 
 	it("should have an error while updating employee if doesn't exists", async () => {
@@ -76,15 +91,14 @@ describe("Employee unit tests", () => {
 
 	it("should update employee", async () => {
 		await employeeService.update("SAL1", "DURAND", "Pierre", "333", "2");
-		const employee = await employeeService.getByName("DURAND");
-		expect(employee).toEqual([
-			expect.objectContaining({
-				id: "SAL1",
-				name: "DURAND",
-				lastname: "Pierre",
-				salary: "333",
-				level: "2",
-			}),
-		]);
+		const employee = await employeeService.getById("SAL1");
+		expect(employee).toEqual({
+			id: "SAL1",
+			name: "DURAND",
+			lastname: "Pierre",
+			salary: "333",
+			level: "2",
+			time: expect.any(Number),
+		});
 	});
 });

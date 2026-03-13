@@ -12,16 +12,17 @@
         <label>Salaire: <input v-model="employee.salary" placeholder="Salaire" :id="creation ? 'creerEmpSalary' : 'modifierEmpSalary'"></label>
       </div>
       <div class="submit">
-        <button v-if="creation" id="creerEmp">Créer</button>
-        <button v-if="!creation" id="modifierEmp">Modifier</button>
+        <button v-if="creation" id="creerEmp" class="small-btn">✚ Créer</button>
+        <button v-if="!creation" id="modifierEmp" class="small-btn">💾 Modifier</button>
+        <button v-if="!creation" type="button" id="closeEmp" class="small-btn outline" @click="emit('close')">✖️ Fermer</button>
       </div>
     </form>
   </span>
 </template>
 
 <script setup>
-import { defineEmits, reactive } from 'vue'
-import { emptyEmployee } from '../services/employee.service'
+import { defineEmits, reactive } from 'vue';
+import { emptyEmployee } from '../services/employee.service';
 
 const props = defineProps({
   id: String,
@@ -34,20 +35,6 @@ const props = defineProps({
 const emit = defineEmits(['created', 'updated'])
 
 const creation = !props.id?.length
-
-// let employee = creation ? {
-//   id: "",
-//   name: "",
-//   lastname: "",
-//   level: "",
-//   salary: ""
-// } : {
-//   id: props.id,
-//   name: props.name,
-//   lastname: props.lastname,
-//   level: props.level,
-//   salary: props.salary,
-// }
 
 const employee = reactive(creation ? {
   id: "",
@@ -75,8 +62,28 @@ const submit = () => {
 </script>
 
 <style>
+
 .submit {
     display: flex;
     justify-content: flex-end;
+}
+
+.submit>button {
+  margin: 0.25rem;
+}
+
+.small-btn {
+  width: auto;
+  display: inline;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0;
+  font-size: 0.75em;
+}
+
+.grid {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 </style>

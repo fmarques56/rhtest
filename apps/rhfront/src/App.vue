@@ -1,31 +1,54 @@
 <template>
   <header class="container">
-    <h1><img id="logo" src="/public/logo.png" alt="application logo"> RhTest</h1>
+    <h1><img id="logo" src="/logo.png" alt="application logo"> RhTest</h1>
   </header>
   <main class="container">
     <div class="error" id="errorMessage" v-if="errorMessage">
       <span>Une erreur est survenue : {{ errorMessage }}</span>
-      <button class="close-btn" @click="closeMessages">✖</button>
+      <button class="close-btn" @click="closeMessages" id="closeErrorMessage">✖</button>
     </div>
 
     <div class="success" id="successMessage" v-if="successMessage">
       <span>{{ successMessage }}</span>
-      <button class="close-btn" @click="closeMessages">✖</button>
+      <button class="close-btn" @click="closeMessages" id="closeSuccessMessage">✖</button>
     </div>
 
-    <section id="create-employee">
+    <section id="employeeCreation">
       <h2>Création d'un salarié :</h2>
       <Employee @created="createdEvent" />
     </section>
 
-    <section id="list-employees">
-      <h2>Liste des salariés (<span id="cpt-employees">{{ employees.length || 0 }}</span>) :</h2>
+    <section id="employeeList">
+      <h2>Liste des salariés (<span id="employeesLength">{{ employees.length || 0 }}</span>) :</h2>
       <form>
         <div class="grid">
-          <input v-model="searchTerm" type="search" id="search" name="search" placeholder="Rechercher"
-            @keyup="search(searchTerm)">
+          <input v-model="searchTerm" type="search" id="search" name="search" placeholder="Recherche rapide" @keyup="searchFullText(searchTerm)" @input="onSearchInput">          
+        </div>
+        <div class="search">
+          <button type="button" class="small-btn" @click="showDetailedSearch = true" id="detailedSearch">🔍 Recherche détaillée</button>
+          <button type="button" class="small-btn outline" @click="resetSearch" id="resetSearch">🧹 Annuler la recherche</button>
         </div>
       </form>
+      <div v-if="showDetailedSearch" class="modal-overlay">
+        <div class="modal">
+          <button class="close-btn modal-close" @click="showDetailedSearch = false" id="closeDetailedSearch">✖</button>
+          <h3>Recherche détaillée</h3>
+          <form @submit.prevent="searchDetailedSubmit">
+            <label>Matricule: <input v-model="detailed.id" placeholder="ID" id="detailedId"></label>
+            <div class="grid">
+              <label>Nom: <input v-model="detailed.name" placeholder="Nom" id="detailedName"></label>
+              <label>Prénom: <input v-model="detailed.lastname" placeholder="Prénom" id="detailedLastname"></label>
+            </div>
+            <div class="grid">
+              <label>Salaire: <input v-model="detailed.salary" placeholder="Salaire" id="detailedSalary"></label>
+              <label>Niveau: <input v-model="detailed.level" placeholder="Niveau" id="detailedLevel"></label>
+            </div>
+            <div class="admin">
+              <button type="submit" class="small-btn" id="confirmDetailedSearch">🔍 Rechercher</button>
+            </div>
+          </form>
+        </div>
+      </div>
       <table>
         <thead>
           <tr>
@@ -53,16 +76,16 @@
       </table>
     </section>
 
-    <section id="update-employee">
+    <section id="employeeUpdate" v-if="updateMode">
       <Employee v-if="updateMode" :id="employee.id" :name="employee.name" :lastname="employee.lastname"
-          :salary="employee.salary" :level="employee.level" @updated="updateEmployee" />
+          :salary="employee.salary" :level="employee.level" @updated="updateEmployee" @close="updateMode = false" />
     </section>
 
     <section id="admin">
       <h2>Administration</h2>
       <div class="admin">
         <button class="small-btn" @click="openAdminModal('deleteAll')" id="deleteAll">🗑️ Supprimer les données</button>
-        <button class="small-btn" @click="openAdminModal('resetData')" id="resetData">↩ Restaurer les données de test</button>
+        <button class="small-btn outline" @click="openAdminModal('resetData')" id="resetData">↩ Restaurer les données de test</button>
       </div>
     </section>
 
@@ -81,8 +104,8 @@
         <p>{{ adminActionMessage }}</p>
         <input v-model="adminToken" type="password" placeholder="Token d'administration" id="adminToken">
         <div class="modal-actions">
-          <button class="small-btn confirm-btn" @click="confirmAdminAction" id="confirmAdminAction">✅ Confirmer</button>
-          <button class="small-btn cancel-btn" @click="closeAdminModal" id="closeAdminModal">❌ Annuler</button>
+          <button class="small-btn" @click="confirmAdminAction" id="confirmAdminAction">✓ Confirmer</button>
+          <button class="small-btn outline" @click="closeAdminModal" id="closeAdminModal">✖️ Annuler</button>
         </div>
       </div>
     </div>
@@ -92,7 +115,7 @@
 <script>
 import ConfirmDialog from './components/ConfirmDialog.vue';
 import Employee from './components/Employee.vue';
-import { create, deleteAll, deleteOne, emptyEmployee, fetch, resetData, search, update } from './services/employee.service';
+import { create, deleteAll, deleteOne, emptyEmployee, fetch, resetData, searchDetailed, searchFullText, update } from './services/employee.service';
 
 export default {
   data() {
@@ -100,6 +123,8 @@ export default {
       employee: emptyEmployee,
       employees: [],
       searchTerm: "",
+      showDetailedSearch: false,
+      detailed: { id: "", name: "", lastname: "", salary: "", level: "" },
       updateMode: false,
       error: null,
       showConfirmDialog: false,
@@ -118,14 +143,33 @@ export default {
     this.fetchEmployees();
   },
   methods: {
+            resetSearch() {
+              this.searchTerm = "";
+              this.detailed = { id: "", name: "", lastname: "", salary: "", level: "" };
+              this.fetchEmployees();
+            },
+            onSearchInput(e) {
+              if (!e.target.value) {
+                this.resetSearch();
+              }
+            },
+        async searchFullText(text) {
+          if (!text.length) {
+            return this.fetchEmployees();
+          }
+          this.employees = await searchFullText(text);
+        },
     async fetchEmployees() {
       this.employees = await fetch();
     },
-    async search(name) {
-      if (!name.length) {
-        return this.fetchEmployees();
-      }
-      this.employees = await search(name);
+    async searchDetailedSubmit() {
+      // Reset la recherche fulltext
+      this.searchTerm = "";
+      // Filtre les champs vides
+      const filtered = Object.fromEntries(Object.entries(this.detailed).filter(([_, v]) => v && v.length));
+      // Appelle directement searchDetailed(filtered) qui construit le bon body
+      this.employees = await searchDetailed(filtered);
+      this.showDetailedSearch = false;
     },
     async createdEvent(employee) {
       try {
@@ -242,6 +286,14 @@ export default {
   margin: 0.25rem;
 }
 
+.search>button {
+  margin: 0.25rem;
+}
+
+.modal-actions>button {
+  margin: 0.25rem;
+}
+
 .error {
   color: #D8000C;
   background-color: #FFBABA;
@@ -276,33 +328,45 @@ export default {
   align-items: center;
 }
 
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #333;
+  z-index: 2;
+}
+
 .modal {
+  position: relative;
   background: white;
   padding: 20px;
   border-radius: 10px;
-  text-align: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
 }
 
 .modal input {
-  width: 80%;
+  width: 100%;
   padding: 8px;
   margin: 10px 0;
 }
 
+
 .modal-actions {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: right;
 }
 
-.confirm-btn {
-  background-color: #4CAF50;
-  color: white;
+.grid {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  width: 100%;
 }
-
-.cancel-btn {
-  background-color: #D8000C;
-  color: white;
-}
-
 </style>

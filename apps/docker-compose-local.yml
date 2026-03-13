@@ -20,10 +20,6 @@ services:
       - ./monitoring/prometheus:/etc/prometheus
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
 
-  noise:
-    build: ./monitoring/noise
-    container_name: noise
-
   ######################
   # RHTEST APP
   #############
@@ -38,8 +34,7 @@ services:
       context: ./rhfront
       dockerfile: Dockerfile
       args:
-        CODESPACE_NAME: ${CODESPACE_NAME}
-        GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN: ${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
+        LOCAL_WORKSPACE_URL: http://localhost:8080
     container_name: rhfront
     ports:
       - 8086:80

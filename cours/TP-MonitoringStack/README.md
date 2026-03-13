@@ -26,7 +26,7 @@ Dans notre cas, rhapi expose une métrique `search_counter` qui compte le nombre
 Grafana va permettre de visualiser l'évolution de la valeur de cette métrique dans le temps, sous forme de séries temporelles. De plus, pour une métrique donnée on aura autant de séries temporelles qu'il n'y a de combinaisons possibles de labels. Par exemple :
 ```
 # Une combinaison possible
-search_counter{ip="192.168.0.20", response="200", route="/api/rechercher?mode=all", type="GET"} 23
+search_counter{ip="192.168.0.20", response="200", route="/api/employees", type="GET"} 23
 
 # Une autre combinaison possible
 search_counter{ip="192.168.0.20", response="400", route="/api/rechercher", type="GET"} 48
@@ -38,11 +38,23 @@ Tout cela peut paraître assez abstrait, le mieux pour comprendre reste de passe
 Dans cette démonstration, nous allons initier notre tableau de bord Grafana, et y ajouter un composant pour **visualiser le nombre d'appels HTTP par minute, pour chaque route**. 
 * Ouvrez votre espace de travail GitPod
 
-    [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/fmarques56/rhtest)
+    [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=master&repo=fmarques56/rhtest)
+
+* Ouvrir le port 8080 en public
+    
+    ![load](img/_03.png)
 
 * Une fois le compose-file lancé automatiquement, accédez à votre interface Grafana :
     * Icône Docker -> Clic-droit sur le conteneur grafana -> Open in Browser
         <br><img src="img/open_in_browser.png" alt="drawing" width="30%"/>
+
+* Lancer le bruit
+
+    ```
+    $ cd apps/monitoring/noise
+    $ ./noise.sh
+    ```
+
 * Sur Grafana, se connecter :
     * Login: `admin`
     * MDP: `admin`
@@ -62,7 +74,7 @@ Dans cette démonstration, nous allons initier notre tableau de bord Grafana, et
 * Rafraichissez votre composant :
     <br><img src="img/refresh.png" alt="drawing" width="50%"/>
 
-* A ce stade, on observe au moins quatre courbes : ce sont les appels faits sur l'api par le script noise.sh qui s'exécute dans un conteneur, allez voir sa définition ici : https://github.com/fmarques56/rhtest/blob/master/apps/monitoring/noise/noise.sh. Il fait simplement appel à quelques routes de notre API toutes les secondes pour générer du bruit et provoquer un incrément de notre métrique `search_counter`. Les courbes sont certainement compactées sur la droite, vous pouvez **réduire la plage temporelle que l'on souhaite visualiser à 15 minutes** :
+* A ce stade, on observe au moins quatre courbes : ce sont les appels faits sur l'api par le script noise.sh qui s'exécute dans un conteneur, allez voir sa définition ici : https://github.com/fmarques56/rhtest/blob/monitoring/apps/monitoring/noise/noise.sh. Il fait simplement appel à quelques routes de notre API toutes les secondes pour générer du bruit et provoquer un incrément de notre métrique `search_counter`. Les courbes sont certainement compactées sur la droite, vous pouvez **réduire la plage temporelle que l'on souhaite visualiser à 15 minutes** :
     <br><img src="img/time_range.png" alt="drawing" width="50%"/>
 
 * Si vous regardez la légende en bas de votre graphique, vous retrouvez les labels associés à vos séries temporelles. Rappelez-vous, nous avions dit plus haut qu'une combinaison de labels = une série temporelle (= une courbe). On a donc un graphique qui affiche le nombre d'appels HTTP pour chaque combinaison de labels.

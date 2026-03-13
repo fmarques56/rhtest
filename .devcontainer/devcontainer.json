@@ -4,7 +4,7 @@
   "service": "rhfront",
   "workspaceFolder": "/workspaces/rhtest",
   "shutdownAction": "stopCompose",
-  "forwardPorts": [8080, 8086, 9090, 3000],
+  "forwardPorts": [8080, 8086, 3000, 9000],
   "portsAttributes": {
     "8080": {
       "label": "API Server",
