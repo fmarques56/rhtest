@@ -21,6 +21,37 @@ Lancer l'application :
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=master&repo=fmarques56/rhtest)
 
+Rendre public les ports 8080 et 8086
+
+## Découvrir bugbug
+
+![Bug bug](img/bugbug.svg)
+
+
+Projet
+
+![Bug bug](img/new_project.png)
+
+Cas de test
+
+![Bug bug](img/new_test.png)
+
+Les cas de tests seront ensuite orchestrés dans des suites de test
+
+![Bug bug](img/testSuite.png)
+
+### Modifier les paramétres du projet
+
+![Bug bug](img/setting.png)
+
+![Bug bug](img/setting2.png)
+
+### Ajouter des assertions
+
+![Bug bug](img/add_assert.png)
+
+![Bug bug](img/add_assert2.png)
+
 
 ## Travail à réaliser
 
